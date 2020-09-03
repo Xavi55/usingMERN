@@ -36,8 +36,10 @@ app.post('/api',async (req,res) => //add Todo
 {
     const todo  = new Todo(
     {
+        data:{
         text:req.body.text,
         complete:false
+        }
         //false is default
     });
     //console.log(todo);
@@ -48,18 +50,19 @@ app.post('/api',async (req,res) => //add Todo
 app.put('/api/:id',async (req,res) => //edit Todo
 {
     //console.log(req.body.text,req.params._id);
-    await Todo.findByIdAndUpdate(req.params.id,{"text":req.body.text});
+    await Todo.findByIdAndUpdate(req.params.id,{$set:{"data.text":req.body.text}});
     res.json("UPDATED");
 
 });
 //
-app.put('/api/check/:id', (req,res) => //checks or unchecks Todos
+app.put('/api/check/:id', async (req,res) => //checks or unchecks Todos
 {
-    Todo.findById(req.params.id, async function(err,res)
-    //async because updating the database takes time
-    {
-        await Todo.findByIdAndUpdate(res.id,{"complete":!res.complete})
-    })
+    let { id }=req.params
+    let { val }=req.body
+    //mongodb
+    //dot notation to update nested data
+    //console.log(val)
+    await Todo.findByIdAndUpdate(id,{$set:{"data.complete":val}})
     res.json("TASK CHANGED CHECK");
 });
 //
